@@ -10,7 +10,10 @@
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "verify:enterprise": "tsx src/tests/enterpriseVerification.ts",
-    "verify:proofs": "tsx src/proofs/verifyFormalProofs.ts"
+    "verify:proofs": "tsx src/proofs/verifyFormalProofs.ts",
+    "verify:dfrl": "tsx src/tests/dfrlVerification.ts",
+    "verify:dfrl:api": "tsx src/tests/dfrlApiVerification.ts",
+    "verify:all": "tsx src/tests/enterpriseVerification.ts && tsx src/proofs/verifyFormalProofs.ts && tsx src/tests/dfrlVerification.ts && tsx src/tests/dfrlApiVerification.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFRLResult",
+  "description": "Deterministic Formal Resolution Layer cryptographic execution result",
+  "type": "object",
+  "required": [
+    "result_id",
+    "contract_id",
+    "paradox_id",
+    "resolution_status",
+    "z3_proof_hash",
+    "nopot_measured_steps",
+    "nopot_upper_bound",
+    "cryptographic_seal",
+    "timestamp",
+    "execution_duration_ms",
+    "zero_mock_verified",
+    "invariants_preserved"
+  ],
+  "properties": {
+    "result_id": { "type": "string" },
+    "contract_id": { "type": "string" },
+    "paradox_id": { "type": "string" },
+    "resolution_status": {
+      "type": "string",
+      "enum": ["PROVEN_UNSAT", "TERMINATION_BOUNDED", "DISPROVED_SAT", "REJECTED_UNKNOWN"]
+    },
+    "z3_proof_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "nopot_measured_steps": { "type": "integer", "minimum": 0 },
+    "nopot_upper_bound": { "type": "integer", "minimum": 1 },
+    "cryptographic_seal": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "timestamp": { "type": "integer" },
+    "execution_duration_ms": { "type": "number", "minimum": 0 },
+    "zero_mock_verified": { "type": "boolean", "const": true },
+    "auditor_signature": { "type": "string" },
+    "invariants_preserved": { "type": "array", "items": { "type": "string" } }
+  }
+}

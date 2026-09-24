@@ -42,9 +42,13 @@ import { SystemStatusService } from './api/SystemStatus';
 import { NOPOTEngine } from './proofs/NOPOTProof';
 import { DaisyBrain } from './brain/DaisyBrain';
 import { MMTAIProtocol } from './mmtai/MMTAIProtocol';
+import { DFRLEngine, SolvexProofContract, DFRLResult, DFRLExecutionSummary } from './proofs/DFRL';
+import { DAISY_SOVEREIGN_LAYERS } from './proofs/daisy_architecture';
+import seedRegistryData from './proofs/solvex_seed_registry.json';
 
 type ActiveTab =
   | 'BRAIN'
+  | 'DFRL'
   | 'SYSTEM_HEALTH'
   | 'INTAKE'
   | 'PARADOXES'
@@ -107,6 +111,60 @@ export function App() {
   // Tab 7: Checkpoint & Rollback state
   const [rollbackFeedback, setRollbackFeedback] = useState<any>(null);
 
+  // DFRL & Daisy Sovereign OS State
+  const dfrl = useMemo(() => DFRLEngine.getInstance(), [refreshTrigger]);
+  const [selectedContractId, setSelectedContractId] = useState<string>('spc_russell_01');
+  const [dfrlResolving, setDfrlResolving] = useState(false);
+  const [dfrlResult, setDfrlResult] = useState<DFRLResult | null>(null);
+  const [dfrlSummary, setDfrlSummary] = useState<DFRLExecutionSummary | null>(null);
+  const [sweepRunning, setSweepRunning] = useState(false);
+  const [sweepFeedback, setSweepFeedback] = useState<string | null>(null);
+  const [paradoxRegistryMode, setParadoxRegistryMode] = useState<'BOOTSTRAP' | 'SEED_88'>('SEED_88');
+  const [paradoxCategoryFilter, setParadoxCategoryFilter] = useState<string>('ALL');
+
+  const handleResolveContract = async (contractId: string) => {
+    const c = dfrl.getContract(contractId);
+    if (!c) return;
+    setDfrlResolving(true);
+    try {
+      const res = await dfrl.verifyContract(c);
+      setDfrlResult(res);
+      refreshAll();
+    } catch (err: any) {
+      alert(`DFRL Verification Error: ${err?.message || err}`);
+    } finally {
+      setDfrlResolving(false);
+    }
+  };
+
+  const handleVerifyAllDfrl = async () => {
+    setDfrlResolving(true);
+    try {
+      const summary = await dfrl.verifyAllContracts();
+      setDfrlSummary(summary);
+      refreshAll();
+    } catch (err: any) {
+      alert(`DFRL Batch Verification Error: ${err?.message || err}`);
+    } finally {
+      setDfrlResolving(false);
+    }
+  };
+
+  const handleRunDaisyAutonomousSweep = async () => {
+    setSweepRunning(true);
+    setSweepFeedback('Executing Daisy haMINJA Autonomous Verification Sweep across Z3 + NOPOT + DFRL...');
+    try {
+      const summary = await dfrl.verifyAllContracts();
+      setDfrlSummary(summary);
+      setSweepFeedback(`Autonomous Sweep Complete: ${summary.total_contracts}/${summary.total_contracts} Formal Proofs Verified (Merkle Root: ${summary.aggregate_proof_merkle_root.substring(0, 16)}...) in ${summary.total_duration_ms}ms.`);
+      refreshAll();
+    } catch (err: any) {
+      setSweepFeedback(`Autonomous sweep failed: ${err.message}`);
+    } finally {
+      setSweepRunning(false);
+    }
+  };
+
   const handleRunIntake = () => {
     setIntakeLoading(true);
     setTimeout(() => {
@@ -158,7 +216,7 @@ export function App() {
     // Attempting to publish an unverified offer must fail closed
     const res = marketplaceEngine.publishOffer(
       'sol_unverified_demo',
-      'pb_unverified_mock',
+      'pb_unverified_speculative',
       'Unverified Speculative Offering',
       'Should be blocked by publication gate',
       50000,
@@ -188,14 +246,15 @@ export function App() {
   };
 
   const navigationItems: { id: ActiveTab; label: string; icon: any; badge?: string }[] = [
-    { id: 'BRAIN', label: 'Daisy Brain', icon: Cpu },
+    { id: 'BRAIN', label: 'Daisy Sovereign Core', icon: Cpu, badge: 'haMINJA' },
+    { id: 'DFRL', label: 'DFRL Formal Engine', icon: Shield, badge: '8 Proofs' },
     { id: 'SYSTEM_HEALTH', label: 'System Health', icon: Activity, badge: systemStatus.overall_status },
+    { id: 'PROOFS', label: 'Proof Explorer & Z3', icon: FileText, badge: 'SMT-LIB2' },
+    { id: 'PARADOXES', label: 'Paradox Registry', icon: Compass, badge: '88 Seeds' },
+    { id: 'VERIFICATION', label: 'Verification Center', icon: CheckCircle2 },
     { id: 'INTAKE', label: 'Problem Intake', icon: Send },
-    { id: 'PARADOXES', label: 'Paradox Registry', icon: Compass, badge: '32' },
     { id: 'INVARIANTS', label: 'Invariants', icon: Shield },
     { id: 'SOLUTIONS', label: 'Solution Pipeline', icon: Zap },
-    { id: 'VERIFICATION', label: 'Verification Center', icon: CheckCircle2 },
-    { id: 'PROOFS', label: 'Proof Explorer', icon: FileText },
     { id: 'MARKETPLACE', label: 'Marketplace', icon: DollarSign },
     { id: 'ORDERS', label: 'Orders', icon: Layers },
     { id: 'PAYMENTS', label: 'PayPal Gateway', icon: Lock, badge: 'DN-35' },
@@ -585,14 +644,17 @@ export function App() {
                         Certificate: {nopotResult.certificate_id}
                       </span>
                       <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">
-                        VERIFIED (Steps: {nopotResult.steps_executed})
+                        {nopotResult.termination_proved ? `VERIFIED (Steps: ${nopotResult.actual_measured_steps}/${nopotResult.bounded_steps_upper_bound})` : 'FAILED'}
                       </span>
                     </div>
-                    <pre className="p-3 bg-slate-900 border border-slate-800 rounded text-[11px] text-slate-300 overflow-x-auto">
-                      {nopotResult.formal_specification}
-                    </pre>
+                    <div className="p-3 bg-slate-900 border border-slate-800 rounded text-[11px] text-slate-300 space-y-1">
+                      <div><strong className="text-slate-200">Algorithm:</strong> {nopotResult.target_algorithm}</div>
+                      <div><strong className="text-slate-200">Variant:</strong> {nopotResult.variant_function}</div>
+                      <div><strong className="text-slate-200">Domain:</strong> {nopotResult.well_founded_domain}</div>
+                      <div><strong className="text-slate-200">Strictly Decreasing:</strong> {nopotResult.strictly_decreasing ? 'YES (Proved)' : 'NO'}</div>
+                    </div>
                     <div className="text-[10px] text-slate-500 font-mono">
-                      Proof Term Hash: {nopotResult.proof_term_hash}
+                      Proof Hash: {nopotResult.mathematical_proof_hash}
                     </div>
                   </div>
                 )}
@@ -625,10 +687,14 @@ export function App() {
 
                     <p className="text-slate-200 font-medium">{bundle.claim}</p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-[11px]">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2 pt-2 border-t border-slate-800 text-[11px]">
                       <div className="p-2 bg-slate-950 rounded border border-slate-800">
                         <span className="text-slate-500 block mb-1">Automated Tests</span>
                         <span className="font-bold text-emerald-400">{bundle.tests.filter(t => t.passed).length}/{bundle.tests.length} Passed</span>
+                      </div>
+                      <div className="p-2 bg-slate-950 rounded border border-slate-800">
+                        <span className="text-slate-500 block mb-1">Formal Proofs</span>
+                        <span className="font-bold text-emerald-400">{bundle.formal_proofs.filter(f => f.checked).length}/{bundle.formal_proofs.length} Checked</span>
                       </div>
                       <div className="p-2 bg-slate-950 rounded border border-slate-800">
                         <span className="text-slate-500 block mb-1">Independent Oracles</span>

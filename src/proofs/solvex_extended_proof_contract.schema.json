@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SolvexExtendedProofContract",
+  "description": "Extended Solvex Proof Contract with multi-tenant isolation, oracle thresholds, and reversibility safeguards",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "paradox_id",
+    "claim",
+    "formal_logic_system",
+    "formal_specification",
+    "invariants",
+    "tenant_id",
+    "oracles_required",
+    "zero_mock_attestation",
+    "timestamp"
+  ],
+  "properties": {
+    "contract_id": { "type": "string" },
+    "paradox_id": { "type": "string" },
+    "claim": { "type": "string" },
+    "formal_logic_system": { "type": "string" },
+    "formal_specification": { "type": "string" },
+    "z3_formula": { "type": "string" },
+    "nopot_variant": { "type": "object" },
+    "invariants": { "type": "array", "items": { "type": "string" } },
+    "tenant_id": { "type": "string" },
+    "oracles_required": { "type": "integer", "minimum": 1 },
+    "oracles_attested": { "type": "array", "items": { "type": "string" } },
+    "economic_stake_amount_cents": { "type": "integer", "minimum": 0 },
+    "reversibility_checkpoint_ref": { "type": "string" },
+    "zero_mock_attestation": { "type": "boolean", "const": true },
+    "timestamp": { "type": "integer" }
+  }
+}

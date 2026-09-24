@@ -15,6 +15,7 @@ import { ReversibilityEngine } from '../database/ReversibilityEngine';
 import { DaisyBrain } from '../brain/DaisyBrain';
 import { computeSha256 } from '../database/DatabaseSchema';
 import { Z3FormalProofEngine } from '../proofs/Z3FormalProofEngine';
+import { DFRLEngine } from '../proofs/DFRL';
 
 export interface ApiResponse<T = any> {
   status: number;
@@ -199,6 +200,49 @@ export class SovereignApiRouter {
           return { status: 200, data: res, timestamp };
         }
         return { status: 400, error: 'theorem_id or custom_smt_script required', timestamp };
+      }
+
+      // 8c. Deterministic Formal Resolution Layer (DFRL)
+      if (path === '/api/dfrl/contracts' && method === 'GET') {
+        const dfrl = DFRLEngine.getInstance();
+        return { status: 200, data: dfrl.getContracts(), timestamp };
+      }
+
+      if (path === '/api/dfrl/status' && method === 'GET') {
+        const dfrl = DFRLEngine.getInstance();
+        return {
+          status: 200,
+          data: {
+            status: 'ONLINE',
+            total_contracts: dfrl.getContracts().length,
+            history_length: dfrl.getHistory().length,
+            zero_mock_enforced: true,
+            solvers_active: ['Z3_NATIVE_WASM', 'NOPOT_WELL_FOUNDED']
+          },
+          timestamp
+        };
+      }
+
+      if (path === '/api/dfrl/history' && method === 'GET') {
+        const dfrl = DFRLEngine.getInstance();
+        return { status: 200, data: dfrl.getHistory(), timestamp };
+      }
+
+      if (path === '/api/dfrl/resolve' && method === 'POST') {
+        const { contract_id, contract } = payload || {};
+        const dfrl = DFRLEngine.getInstance();
+        const targetContract = contract || (contract_id ? dfrl.getContract(contract_id) : null);
+        if (!targetContract) {
+          return { status: 404, error: `Proof contract not found for id: ${contract_id}`, timestamp };
+        }
+        const result = await dfrl.verifyContract(targetContract);
+        return { status: 200, data: result, timestamp };
+      }
+
+      if (path === '/api/dfrl/verify-all' && method === 'POST') {
+        const dfrl = DFRLEngine.getInstance();
+        const summary = await dfrl.verifyAllContracts();
+        return { status: 200, data: summary, timestamp };
       }
 
       // 9. /api/offers

@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SolvexProofContract",
+  "description": "Standard Solvex Proof Contract specification for formal paradox resolution",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "paradox_id",
+    "claim",
+    "formal_logic_system",
+    "formal_specification",
+    "invariants",
+    "timestamp"
+  ],
+  "properties": {
+    "contract_id": {
+      "type": "string",
+      "pattern": "^spc_[a-zA-Z0-9_-]+$"
+    },
+    "paradox_id": {
+      "type": "string",
+      "description": "Canonical ID of the paradox from the Solvex Registry"
+    },
+    "claim": {
+      "type": "string",
+      "minLength": 10
+    },
+    "formal_logic_system": {
+      "type": "string",
+      "enum": ["SMT_LIB2", "LEAN4", "NOPOT", "FIRST_ORDER_PEANO", "WELL_FOUNDED_INDUCTION"]
+    },
+    "formal_specification": {
+      "type": "string",
+      "description": "SMT-LIB2, Lean4, or mathematical logic specification code"
+    },
+    "z3_formula": {
+      "type": "string",
+      "description": "SMT-LIB2 formula string to be checked for UNSAT"
+    },
+    "nopot_variant": {
+      "type": "object",
+      "required": ["variant_name", "well_founded_domain", "ranking_function", "max_bounded_steps"],
+      "properties": {
+        "variant_name": { "type": "string" },
+        "well_founded_domain": { "type": "string" },
+        "ranking_function": { "type": "string" },
+        "max_bounded_steps": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "invariants": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "author": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "integer"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["PROPOSED", "VALIDATED", "REJECTED", "DISPROVED"]
+    }
+  }
+}
