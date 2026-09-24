@@ -1,0 +1,6 @@
+{
+  "name": "Daisy haMINJA AI-UI-OS",
+  "description": "Enterprise-grade sovereign operating system and formal logic engine with Z3 automated theorem proving, MMTAI protocol, fail-closed security, and PayPal integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

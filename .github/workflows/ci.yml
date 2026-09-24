@@ -1,0 +1,55 @@
+name: Daisy haMINJA AI-UI-OS Enterprise CI/CD
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  enterprise-ci:
+    name: "Enterprise Verification & Build"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Sovereign Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment (Node 22)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install System Dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+
+      - name: Validate TypeScript & Linter Integrity
+        run: |
+          npm run lint
+
+      - name: Run Enterprise Cryptographic & Formal Logic Verification
+        run: |
+          npm run verify:enterprise
+
+      - name: Build Production Sovereign Artifacts
+        run: |
+          npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Verify Forensic Audit Artifacts
+        run: |
+          test -f enterprise-verification-report.json || { echo "Missing verification report!"; exit 1; }
+          test -f solvex-manifest.json || { echo "Missing manifest!"; exit 1; }

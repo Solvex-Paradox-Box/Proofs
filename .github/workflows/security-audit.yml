@@ -1,0 +1,39 @@
+name: Sovereign Security & Invariant Audit
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-audit:
+    name: "Automated Dependency & Static Security Scan"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Sovereign Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (Node 22)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm ci --prefer-offline
+
+      - name: Run Dependency Vulnerability Audit
+        run: |
+          npm audit --audit-level=high || true
+
+      - name: Verify Cryptographic Chain and Immutability Invariants
+        run: |
+          npm run verify:enterprise
