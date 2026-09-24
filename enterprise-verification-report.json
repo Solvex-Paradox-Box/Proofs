@@ -1,5 +1,5 @@
 {
-  "verification_timestamp": 1790222717285,
+  "verification_timestamp": 1790223811610,
   "product": "SOLVEX",
   "core_engine": "DAISY HAMINJA",
   "summary": {
@@ -58,7 +58,7 @@
       "name": "Multi-Tenant Cryptographic Partition Isolation",
       "category": "SECURITY",
       "passed": true,
-      "duration_ms": 0,
+      "duration_ms": 1,
       "details": {
         "status": "PASSED"
       }
@@ -68,7 +68,7 @@
       "name": "Audit Chain Cryptographic Hash Continuity",
       "category": "AUDIT",
       "passed": true,
-      "duration_ms": 2,
+      "duration_ms": 1,
       "details": {
         "status": "PASSED"
       }
@@ -88,7 +88,7 @@
       "name": "Atomic State Checkpoint & Reversibility Engine",
       "category": "PERSISTENCE",
       "passed": true,
-      "duration_ms": 14,
+      "duration_ms": 10,
       "details": {
         "status": "PASSED"
       }
@@ -98,7 +98,7 @@
       "name": "Irreversible Action Rollback Rejection Guard",
       "category": "PERSISTENCE",
       "passed": true,
-      "duration_ms": 5,
+      "duration_ms": 4,
       "details": {
         "status": "PASSED"
       }
@@ -108,7 +108,7 @@
       "name": "Paradox Registry Integrity (Exact 32 Bootstrap Set)",
       "category": "PARADOX",
       "passed": true,
-      "duration_ms": 0,
+      "duration_ms": 1,
       "details": {
         "status": "PASSED"
       }
@@ -118,7 +118,7 @@
       "name": "Paradox Duplicate & Family Variant Taxonomy",
       "category": "PARADOX",
       "passed": true,
-      "duration_ms": 1,
+      "duration_ms": 0,
       "details": {
         "status": "PASSED"
       }
@@ -148,7 +148,7 @@
       "name": "Proof Bundle Builder Seal & Independent Oracle Attestation",
       "category": "PROOFS",
       "passed": true,
-      "duration_ms": 0,
+      "duration_ms": 5,
       "details": {
         "status": "PASSED"
       }
@@ -178,7 +178,7 @@
       "name": "Pipeline Fail-Closed Gate Halts and Quarantines on Error",
       "category": "PIPELINE",
       "passed": true,
-      "duration_ms": 1,
+      "duration_ms": 0,
       "details": {
         "status": "PASSED"
       }
@@ -188,7 +188,7 @@
       "name": "Defensible Pricing Formula v1.4 Deterministic Execution",
       "category": "MARKETPLACE",
       "passed": true,
-      "duration_ms": 0,
+      "duration_ms": 1,
       "details": {
         "status": "PASSED"
       }
@@ -238,7 +238,7 @@
       "name": "Daisy Node Registry (54 Distinct Nodes)",
       "category": "NODES",
       "passed": true,
-      "duration_ms": 1,
+      "duration_ms": 0,
       "details": {
         "status": "PASSED"
       }
@@ -248,7 +248,7 @@
       "name": "System Status API Endpoint Computes Real State",
       "category": "API",
       "passed": true,
-      "duration_ms": 282,
+      "duration_ms": 289,
       "details": {
         "status": "PASSED"
       }
@@ -258,7 +258,7 @@
       "name": "SqliteStore Multi-Tenant Persistence & 27 Tables Integrity",
       "category": "DATABASE",
       "passed": true,
-      "duration_ms": 1,
+      "duration_ms": 2,
       "details": {
         "status": "PASSED"
       }
@@ -268,7 +268,7 @@
       "name": "Fail-Closed: CLAIM_ONLY / UNVERIFIED Offer Publication Blocked",
       "category": "MARKETPLACE",
       "passed": true,
-      "duration_ms": 1,
+      "duration_ms": 3,
       "details": {
         "status": "PASSED"
       }
@@ -318,7 +318,7 @@
       "name": "Order Lifecycle State Machine Validates Transitions & Failures",
       "category": "MARKETPLACE",
       "passed": true,
-      "duration_ms": 4,
+      "duration_ms": 2,
       "details": {
         "status": "PASSED"
       }
