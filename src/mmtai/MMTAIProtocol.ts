@@ -15,14 +15,21 @@ export interface MMTAIPermit {
 }
 
 function secureRandomHex(bytes: number = 16): string {
+  if (typeof globalThis !== 'undefined' && globalThis.crypto?.getRandomValues) {
+    const arr = new Uint8Array(bytes);
+    globalThis.crypto.getRandomValues(arr);
+    return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  // Try Node.js crypto module if available in environment
   try {
-    if (typeof globalThis !== 'undefined' && globalThis.crypto?.getRandomValues) {
-      const arr = new Uint8Array(bytes);
-      globalThis.crypto.getRandomValues(arr);
-      return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+    const nodeCrypto = require('crypto');
+    if (nodeCrypto?.randomBytes) {
+      return nodeCrypto.randomBytes(bytes).toString('hex');
     }
   } catch {}
-  return Date.now().toString(36) + Math.random().toString(36).substring(2);
+  
+  // Fail-closed: Never fall back to insecure Math.random() for cryptographic tokens/nonces
+  throw new Error('Cryptographic Security Violation: CSPRNG (crypto.getRandomValues / crypto.randomBytes) is unavailable.');
 }
 
 export class MMTAIProtocol {

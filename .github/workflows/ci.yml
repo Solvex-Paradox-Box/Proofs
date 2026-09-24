@@ -39,6 +39,10 @@ jobs:
         run: |
           npm run lint
 
+      - name: Machine-Check Formal SMT Theorems (Z3 Automated Theorem Prover)
+        run: |
+          npm run verify:proofs
+
       - name: Run Enterprise Cryptographic & Formal Logic Verification
         run: |
           npm run verify:enterprise

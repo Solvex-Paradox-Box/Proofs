@@ -196,17 +196,30 @@ export async function runEnterpriseVerification() {
   });
 
   // 10. NOPOT Bounded Termination Formal Proof
-  runTest('NOPOT Bounded Termination Formal Proof Verification', 'PROOFS', () => {
-    const cert = NOPOTVerifier.verifyAlgorithmTermination(
+  runTest('NOPOT Bounded Termination Formal Proof Verification', 'PROOFS', async () => {
+    // 1. Execute the bounded transition algorithm step
+    const { certificate: cert, z3Result } = await NOPOTVerifier.verifyWithZ3Solver(
       'StrictlyDecreasingZenoLoop',
       (x) => Math.floor(x / 2),
       64,
       100
     );
+
+    // Fail if concrete algorithm did not terminate or was not strictly decreasing
     if (!cert.termination_proved) throw new Error('NOPOT failed to prove termination');
     if (!cert.strictly_decreasing) throw new Error('NOPOT variant function was not strictly decreasing');
     if (cert.actual_measured_steps > cert.bounded_steps_upper_bound) {
       throw new Error('Measured steps exceeded upper bound');
+    }
+
+    // Fail if Z3 was not invoked or did not return machine-checked UNSAT
+    if (!z3Result) throw new Error('Z3 theorem prover was not invoked');
+    if (!z3Result.proved) throw new Error(`Z3 theorem prover failed to prove inductive termination: ${z3Result.explanation}`);
+    if (z3Result.solver_result !== 'unsat') {
+      throw new Error(`Z3 solver returned [${z3Result.solver_result}], expected [UNSAT] for termination invariance`);
+    }
+    if (!cert.formal_smt_verification?.verified_by_z3) {
+      throw new Error('NOPOT certificate missing machine-checked Z3 formal verification record');
     }
   });
 
@@ -221,26 +234,40 @@ export async function runEnterpriseVerification() {
   });
 
   // 12. Proof Bundle Builder & Attestation Sealing
-  runTest('Proof Bundle Builder Seal & Independent Oracle Attestation', 'PROOFS', () => {
+  runTest('Proof Bundle Builder Seal & Independent Oracle Attestation', 'PROOFS', async () => {
+    const z3Engine = Z3FormalProofEngine.getInstance();
+    const z3Proof = await z3Engine.proveCatalogTheorem('THM-INDUCTIVE-TERMINATION-05');
+    if (!z3Proof.proved || z3Proof.solver_result !== 'unsat') {
+      throw new Error(`Z3 proof execution failed: ${z3Proof.explanation}`);
+    }
+
     const builder = new ProofBundleBuilder('PB-TEST-SEAL', 'SUB-001', 'Test verifiable claim');
     builder
       .addTest('TEST-1', 'Basic assertion', true, 1.0)
-      .addFormalProof('NOPOT', 'V(x) < V(y)', true)
+      .addZ3Proof(z3Proof, true)
       .addOracle('ORACLE-01', 'Test Witness', 'SIG_CHECK', true)
       .addReplay('REPLAY-01', 'hash_a', 'hash_a');
     const sealed = builder.seal();
     if (sealed.verification_status !== 'VERIFIED') {
       throw new Error('Clean proof bundle failed to seal as VERIFIED');
     }
+
+    const engine = ProofEngine.getInstance();
+    const check = engine.verifyBundleIntegrity(sealed);
+    if (!check.verified) {
+      throw new Error(`Proof bundle failed integrity verification: ${check.reasons.join(', ')}`);
+    }
   });
 
   // 13. Deterministic Replay Cleanroom Verification
-  runTest('Cleanroom Replay Bitrot & Divergence Detection', 'PROOFS', () => {
-    const engine = ProofEngine.getInstance();
+  runTest('Cleanroom Replay Bitrot & Divergence Detection', 'PROOFS', async () => {
+    const z3Engine = Z3FormalProofEngine.getInstance();
+    const z3Proof = await z3Engine.proveCatalogTheorem('THM-INDUCTIVE-TERMINATION-05');
+
     const builder = new ProofBundleBuilder('PB-DIVERGENT', 'SUB-DIV', 'Divergence test');
     builder
       .addTest('TEST-DIV', 'Run test', true, 1.0)
-      .addFormalProof('NOPOT', 'spec', true)
+      .addZ3Proof(z3Proof, true)
       .addOracle('ORACLE-DIV', 'Witness', 'SIG', true)
       .addReplay('REPLAY-DIV', 'expected_hash_xyz', 'observed_hash_divergent');
     const sealed = builder.seal();

@@ -227,6 +227,28 @@ export interface MarketplaceOfferEntity {
   created_at: number;
 }
 
+export type FormalProofClassification =
+  | 'MACHINE_CHECKED_FORMAL_PROOF'
+  | 'MACHINE_CHECKED_MODEL_PROOF'
+  | 'EXECUTABLE_VERIFICATION'
+  | 'CRYPTOGRAPHIC_INTEGRITY'
+  | 'ASSERTION_TEST'
+  | 'CLAIM_ONLY'
+  | 'UNKNOWN';
+
+export interface FormalProofRecord {
+  system: 'Z3_SMT' | 'LEAN4' | 'ISABELLE' | 'NOPOT' | 'TYPE_THEORY';
+  specification: string;
+  checked: boolean;
+  classification: FormalProofClassification;
+  proof_term_hash: string;
+  checker_engine?: string;
+  checker_version?: string;
+  solver_result?: string;
+  execution_duration_ms?: number;
+  stdout_summary?: string;
+}
+
 export interface ProofBundleEntity {
   proof_id: string;
   subject_id: string;
@@ -240,12 +262,7 @@ export interface ProofBundleEntity {
     duration_ms: number;
     receipt_hash: string;
   }[];
-  formal_proofs: {
-    system: 'Z3_SMT' | 'LEAN4' | 'ISABELLE' | 'NOPOT' | 'TYPE_THEORY';
-    specification: string;
-    checked: boolean;
-    proof_term_hash: string;
-  }[];
+  formal_proofs: FormalProofRecord[];
   independent_oracles: {
     oracle_id: string;
     name: string;

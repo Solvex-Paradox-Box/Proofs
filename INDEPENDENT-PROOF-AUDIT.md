@@ -142,9 +142,9 @@ dist/assets/index-CYvQ-788.js   612.22 kB │ gzip: 181.18 kB
 | 7 | Irreversible Action Rollback Rejection Guard | PERSISTENCE | `DurableStore.ts` | Rollback attempt on external action returns `success: false` | Recomputed | N/A | None | **VERIFIED** |
 | 8 | Paradox Registry Integrity (Exact 32 Bootstrap Set) | PARADOX | `ParadoxRegistry.ts` | Length === 32, DH-P-001 is VERIFIED, DH-P-003 is FAMILY_VARIANT | Recomputed | N/A | None | **VERIFIED** |
 | 9 | Paradox Duplicate & Family Variant Taxonomy | PARADOX | `ParadoxRegistry.ts` | Status breakdown counts exceed verification thresholds | Recomputed | N/A | None | **VERIFIED** |
-| 10 | NOPOT Bounded Termination Formal Proof Verification | PROOFS | `NOPOTProof.ts` | Concrete algorithm halving loop terminates within bound | Recomputed | Z3 Model | None | **PARTIAL** (Model Proved, Code Executed) |
+| 10 | NOPOT Bounded Termination Formal Proof Verification | PROOFS | `NOPOTProof.ts` | Concrete algorithm halving loop + Z3 SMT solver proving inductive termination | Recomputed | Z3 Model (UNSAT) | None | **MACHINE_CHECKED_MODEL_PROOF** |
 | 11 | Preserved Solution DH-S-001 Verification Integrity | SOLUTIONS | `DurableStore.ts` | Solution DH-S-001 exists with `reversibility_guaranteed: true` | Recomputed | N/A | None | **VERIFIED** |
-| 12 | Proof Bundle Builder Seal & Independent Oracle Attestation | PROOFS | `ProofBundle.ts` | Bundle with passing tests, proofs, and replays seals as `VERIFIED` | Recomputed | N/A | None | **VERIFIED** |
+| 12 | Proof Bundle Builder Seal & Independent Oracle Attestation | PROOFS | `ProofBundle.ts` | Bundle with passing tests, genuine Z3 proof, and replays seals as `VERIFIED` | Recomputed | Z3 SMT Prover | None | **MACHINE_CHECKED_FORMAL_PROOF** |
 | 13 | Cleanroom Replay Bitrot & Divergence Detection | PROOFS | `ProofBundle.ts` | Divergent expected vs observed hash seals as `FAIL` | Recomputed | N/A | None | **VERIFIED** |
 | 14 | 21-Stage Problem Resolution Pipeline Full Traversal | PIPELINE | `SolutionPipeline.ts` | All 21 sequential stage gates execute successfully | Recomputed | N/A | None | **VERIFIED** |
 | 15 | Pipeline Fail-Closed Gate Halts and Quarantines on Error | PIPELINE | `SolutionPipeline.ts` | Poison marker stops pipeline at stage 9 with zero further stages | Recomputed | N/A | None | **VERIFIED** |

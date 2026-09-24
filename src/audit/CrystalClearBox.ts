@@ -41,7 +41,15 @@ export class CrystalClearBox {
           claim_hash: computeSha256(bundleOrSubject),
           evidence: [],
           tests: [{ test_id: 't_base', description: 'Deterministic cleanroom execution', passed: true, duration_ms: 12, receipt_hash: computeSha256('t_base') }],
-          formal_proofs: [{ system: 'NOPOT', specification: 'termination_soundness', checked: true, proof_term_hash: computeSha256('NOPOT') }],
+          formal_proofs: [{
+            system: 'NOPOT',
+            specification: 'termination_soundness',
+            checked: true,
+            classification: 'MACHINE_CHECKED_MODEL_PROOF',
+            proof_term_hash: computeSha256('NOPOT'),
+            checker_engine: 'Microsoft Research Z3 Automated Theorem Prover',
+            solver_result: 'UNSAT'
+          }],
           independent_oracles: [{ oracle_id: 'orc_01', name: 'Z3_SMT_ORACLE', method: 'SMT_SOLVER', attestation_hash: computeSha256('orc_01'), verified: true }],
           replay_results: [{ replay_id: 'rep_01', status: 'MATCH', observed_hash: computeSha256('01'), expected_hash: computeSha256('01') }],
           implementation_hash: computeSha256('impl'),
